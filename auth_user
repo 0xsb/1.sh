@@ -1,0 +1,101 @@
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+	<link rel="shortcut icon" href="../favicon.ico"/>
+    <title> -</title>
+    <!--baidu-->
+    <meta name="baidu-site-verification" content="4IPJiuihDj" />
+    <!-- Bootstrap -->
+    <link href="http://cdn.bootcss.com/bootstrap/3.3.4/css/bootstrap.css" rel="stylesheet">
+    <script src="http://cdn.bootcss.com/jquery/1.11.3/jquery.min.js"></script>
+    <script src="http://cdn.bootcss.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+	<style>
+	
+	</style>
+	<script type="text/javascript">
+	  function getValue(obj,str){
+	  var input=window.document.getElementById(obj);
+	  input.value=str;
+	  }
+  </script>
+  </head>
+<body background="/image/fzbeijing.png">
+
+<style type="text/css"> 
+.btnAudio{ width:36px; height:36px; position:absolute; right:30px; top:18px; overflow:hidden; background:url("http://pan.cccyun.cn/view.php/7a1a6d1c1426c7ce866712f1c058b69d.png") left top no-repeat; z-index:100;}
+.rotate1circle{-webkit-animation:rotate1circle 1s linear infinite;}
+@-webkit-keyframes rotate1circle {
+        0% {
+                -webkit-transform-origin:center center;
+                -webkit-transform:rotate(0deg);
+        }
+        100% {
+                -webkit-transform-origin:center center;
+                -webkit-transform:rotate(360deg);
+        }
+} 
+</style>
+ 
+
+<script> var bg_audio_val = true;
+var bg_audio = new Audio();
+function audio_init(){
+        var options_audio = {
+                loop: true,
+                preload: "auto",
+                src: $('.u-audio').attr('data-src')
+        }
+        for (var key in options_audio) {
+                bg_audio[key] = options_audio[key];
+        }
+        bg_audio.load();
+        audio_addEvent();
+        bg_audio.play();
+}
+function audio_addEvent(){
+        $("#btnAudio").on('click', audio_control);
+        $(bg_audio).on('play',function(){
+                bg_audio_val = false;
+                $('#btnAudio').addClass('rotate1circle');
+        })
+        $(bg_audio).on('pause',function(){
+                $('#btnAudio').removeClass('rotate1circle');
+        })
+}
+function audio_control(){
+        if(!bg_audio_val){
+                bg_audio.pause();
+                bg_audio_val = true;
+        }else{
+                bg_audio.play();
+        }
+}
+audio_init(); 
+</script><br><br>
+<div class="container bzbz">    <div class="header">
+        <ul class="nav nav-pills pull-right" role="tablist"><body background="/bg.png">
+          <div class="hzhz"><a class="btn btn-success" href="index.php"> </a> &nbsp;</div>
+          <div class="hzhz"><a class="btn btn-warning" href="zdsq.php"> </a></div>
+          <div class="hzhz"><a class="btn btn-info" href="http://shang.qq.com/wpa/qunwpa?idkey=eb2a57f56113547fa4e74093752671e52dbf1f3a1ccc29b168bf4e171b79cda2">售后交流</a> &nbsp;</div>
+        </ul>
+        <h3 class="text-muted" align="left"> </h3><body background="/fzbeijing.png">
+     </div><hr>
+	 <h3 class="form-signin-heading"> </h3><body background="/image/bg.png">
+	 <form action="?" class="form-sign" method="get">
+<body background="/fzbeijing.png">
+	  <br><br>
+	 <input type="text" class="form-controltm" name="url" placeholder=" " value=""><br><head><BODY background="bg.png">
+	 <input type="submit" class="btn btn-danger btn-block" name="submit" value=" "><br/>
+<br/>
+<br/>
+<div class="container-fluid"> <a href="http://svip.tzyee.net/list/6Hzzs" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-credit-card"></span>购买</a> <a href="http://wpa.qq.com/msgrd?v=3&amp;uin=1475129762&amp;site=qq&amp;menu=yes" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-exclamation-sign"></span> 帮助</a>
+         <a href="http://wpa.qq.com/msgrd?v=3&amp;uin=1475129762&amp;site=qq&amp;menu=yes" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-pencil"></span> 客服</button>
+	   <a href="http://shang.qq.com/wpa/qunwpa?idkey=eb2a57f56113547fa4e74093752671e52dbf1f3a1ccc29b168bf4e171b79cda2" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-pencil"></span> 售后群</a> </div>
+   <p style="text-align:center"><br>&copy;   <a href="http://xbml.vip/"> </a> </p></div>
+</body>
+</html>
