@@ -4333,7 +4333,7 @@ if [[ "$installslect" == "3" ]]
 	then
 	clear
 	echo
- echo -e "\033[34m请输入数据库密码：$ml\033[0m"
+ echo -e "\033[34m请输入数据库密码\033[0m"
  read sqlppss
 mysql -uroot -p$sqlppss -e "
 use ov
@@ -4346,7 +4346,7 @@ quit"
 	clear
 	 echo -e "\033[34m请输入要删除的用户名 \033[0m"
 	 read del
- echo -e "\033[34m请输入数据库密码：$ml\033[0m"
+ echo -e "\033[34m请输入数据库密码\033[0m"
  read sqlppss
 mysql -uroot -p$sqlppss -e "
 use ov
@@ -4374,7 +4374,7 @@ if [[ "$installslect" == "2" ]]
  echo -n -e "\033[36m请输入密码\033[0m \033[33m\033[0m :"
  read ml
  echo -e "\033[34m已设置密码为：$ml\033[0m"
- echo -e "\033[34m请输入数据库密码：$ml\033[0m"
+ echo -e "\033[34m请输入数据库密码\033[0m"
  read sqlppss
 mysql -uroot -p$sqlppss -e "
 use ov
