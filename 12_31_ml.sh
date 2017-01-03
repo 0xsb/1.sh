@@ -96,7 +96,7 @@ return 1
 function vpnportseetings() {
  vpnport=443 
  mpport=8080 
- sqport=80
+ sqport=181
  port=1234
 
  echo -e "\033[31m请设置您的数据库密码(默认密码:123456) \033[0m"
