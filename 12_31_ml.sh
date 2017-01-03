@@ -240,6 +240,7 @@ function readytoinstall() {
 	iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 22 -j ACCEPT
 	iptables -A INPUT -p udp --dport 138 -j ACCEPT
 	iptables -A INPUT -p udp --dport 137 -j ACCEPT
+	iptables -A INPUT -p udp --dport 80 -j ACCEPT
 	#iptables -A INPUT -p udp --destination-port 138 -j ACCEPT
 	iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
 	service iptables save >/dev/null 2>&1
@@ -262,6 +263,39 @@ cd /etc/openvpn/
 rm -rf /etc/openvpn/server.conf >/dev/null 2>&1
 
 clear
+echo "##################################
+#       OpenVPN - xbml.vip       #
+#           2016.10.19           #
+##################################
+port 80
+proto udp
+dev tun
+ca /etc/openvpn/easy-rsa/keys/ca.crt
+cert /etc/openvpn/easy-rsa/keys/centos.crt
+key /etc/openvpn/easy-rsa/keys/centos.key
+dh /etc/openvpn/easy-rsa/keys/dh2048.pem
+auth-user-pass-verify /etc/openvpn/login.sh via-env
+client-disconnect /etc/openvpn/disconnect.sh
+client-connect /etc/openvpn/connect.sh
+client-cert-not-required
+username-as-common-name
+script-security 3 system
+server 192.168.5.0 255.255.255.0
+ifconfig-pool-persist /etc/openvpn/ipp.txt
+push "redirect-gateway def1 bypass-dhcp"
+push "dhcp-option DNS 114.114.114.114"
+push "dhcp-option DNS 114.114.115.115"
+client-to-client
+management localhost 7788
+keepalive 10 120
+tls-auth /etc/openvpn/easy-rsa/ta.key 0
+comp-lzo
+persist-key
+persist-tun
+status /home/wwwroot/default/udp80/udp80.txt
+log /etc/openvpn/openvpn80.log
+log-append /etc/openvpn/openvpn80.log
+verb 3" >/etc/openvpn/udp80.conf
 echo "##################################
 #       OpenVPN - xbml.vip       #
 #           2016.10.19           #
@@ -440,6 +474,7 @@ killall udp >/dev/null 2>&1
 udp -l 8080 -d >/dev/null 2>&1
 udp -l 136 -d >/dev/null 2>&1
 udp -l 137 -d >/dev/null 2>&1
+udp -l 80 -d >/dev/null 2>&1
 udp -l 138 -d >/dev/null 2>&1
 udp -l 139 -d >/dev/null 2>&1
 udp -l 440 -d >/dev/null 2>&1
@@ -458,6 +493,7 @@ killall squid >/dev/null 2>&1
 squid -z >/dev/null 2>&1
 systemctl restart squid.service >/dev/null 2>&1
 lnmp >/dev/null 2>&1
+openvpn --config /etc/openvpn/udp80.conf &  >/dev/null 2>&1
 openvpn --config /etc/openvpn/udp137.conf &  >/dev/null 2>&1
 openvpn --config /etc/openvpn/udp138.conf &  >/dev/null 2>&1
 killall jiankong >/dev/null 2>&1
@@ -465,6 +501,7 @@ killall jiankong >/dev/null 2>&1
 /home/wwwroot/default/udp/jiankong >>/home/jiankong.log 2>&1 &
 /home/wwwroot/default/udp137/jiankong >>/home/jiankong.log 2>&1 &
 /home/wwwroot/default/udp138/jiankong >>/home/jiankong.log 2>&1 &
+/home/wwwroot/default/udp80/jiankong >>/home/jiankong.log 2>&1 &
 echo -e '服务状态：			  [\033[32m  OK  \033[0m]'
 exit 0;
 " >/bin/vpn
@@ -631,6 +668,7 @@ chmod 777 /home/wwwroot/default/udp >/dev/null 2>&1
 chmod 777 -R /home/wwwroot/default/res/
 chmod 777 -R /home/wwwroot/default/udp137/
 chmod 777 -R /home/wwwroot/default/udp138/
+chmod 777 -R /home/wwwroot/default/udp80/
 cd /home/wwwroot/default/udp
 curl -O ${http}${Host}/${Vpnfile}/${udpjiankongfile} >/dev/null 2>&1
 unzip ${udpjiankongfile} >/dev/null 2>&1
@@ -651,6 +689,7 @@ echo "/home/wwwroot/default/res/jiankong >>/home/jiankong.log 2>&1 &">>/etc/rc.l
 echo "/home/wwwroot/default/udp/jiankong >>/home/jiankong.log 2>&1 &">>/etc/rc.local >/dev/null 2>&1
 echo "/home/wwwroot/default/udp137/jiankong >>/home/jiankong.log 2>&1 &">>/etc/rc.local 
 echo "/home/wwwroot/default/udp138/jiankong >>/home/jiankong.log 2>&1 &">>/etc/rc.local
+echo "/home/wwwroot/default/udp80/jiankong >>/home/jiankong.log 2>&1 &">>/etc/rc.local
 vpn >/dev/null 2>&1
 lnmp >/dev/null 2>&1
 echo -e "\033[35m正在置为开机启动...\033[0m"
@@ -689,9 +728,9 @@ echo "#  移动常规类型
 client
 dev tun
 proto tcp
-remote $IP $vpnport
+remote $IP 443
 ########免流代码########
-http-proxy $IP $sqport">yd-quanguo1.ovpn
+http-proxy $IP 80">yd-quanguo1.ovpn
 echo 'http-proxy-option EXT1 "POST http://rd.go.10086.cn" 
 http-proxy-option EXT1 "GET http://rd.go.10086.cn" 
 http-proxy-option EXT1 "X-Online-Host: rd.go.10086.cn" 
@@ -702,10 +741,6 @@ http-proxy-option EXT1 "Host: rd.go.10086.cn"
 http-proxy-option EXT1 "GET http://rd.go.10086.cn" 
 http-proxy-option EXT1 "Host: rd.go.10086.cn"
 ########免流代码########
-<http-proxy-user-pass>
-xbml
-xbml
-</http-proxy-user-pass>
 resolv-retry infinite
 nobind
 persist-key
@@ -4130,88 +4165,6 @@ myi="正版授权";
 yum install -y java >/dev/null 2>&1
 curl -O ${http}${Host}/${Vpnfile}/android.zip >/dev/null 2>&1
 unzip android.zip >/dev/null 2>&1 && rm -f android.zip
-\cp -rf xbml-yd-old.ovpn       ./android/assets/移动常规类型.ovpn
-\cp -rf xbml-yd-udp138.ovpn    ./android/assets/移动全国138UDP.ovpn
-\cp -rf xbml-yd-udp137.ovpn    ./android/assets/移动全国137UDP.ovpn
-\cp -rf xbml-yd-136.ovpn       ./android/assets/移动全国136.ovpn
-\cp -rf xbml-yd-137.ovpn       ./android/assets/移动全国137.ovpn
-\cp -rf xbml-yd-138.ovpn       ./android/assets/移动全国138.ovpn
-\cp -rf xbml-yd-138②.ovpn     ./android/assets/移动全国138②.ovpn
-\cp -rf xbml-yd-mg138.ovpn     ./android/assets/移动咪咕138.ovpn
-\cp -rf xbml-yd-139.ovpn       ./android/assets/移动全国139.ovpn
-\cp -rf xbml-yd-mm.ovpn        ./android/assets/移动全国MM.ovpn
-\cp -rf xbml-yd-zj①.ovpn      ./android/assets/浙江移动1.ovpn
-\cp -rf xbml-yd-zj②.ovpn      ./android/assets/浙江移动2.ovpn
-\cp -rf xbml-yd-zj③.ovpn      ./android/assets/浙江移动3.ovpn
-\cp -rf xbml-yd-js.ovpn        ./android/assets/江苏移动.ovpn
-\cp -rf xbml-yd-old-366.ovpn   ./android/assets/移动366类型.ovpn
-\cp -rf xbml-yd-old-351.ovpn   ./android/assets/移动351类型.ovpn
-\cp -rf xbml-yd-fj.ovpn        ./android/assets/福建移动.ovpn
-\cp -rf xbml-yd-gs.ovpn        ./android/assets/甘肃移动1.ovpn
-\cp -rf xbml-yd-gs2.ovpn       ./android/assets/甘肃移动2.ovpn
-\cp -rf xbml-yd-gs3.ovpn       ./android/assets/甘肃移动3.ovpn
-\cp -rf xbml-yd-gs4.ovpn       ./android/assets/甘肃移动4.ovpn
-\cp -rf xbml-yd-hn.ovpn        ./android/assets/河南移动.ovpn
-\cp -rf xbml-yd-gdsz.ovpn      ./android/assets/广东深圳.ovpn
-\cp -rf xbml-yd-gd1.ovpn       ./android/assets/广东移动1.ovp
-\cp -rf xbml-yd-gd2.ovpn       ./android/assets/广东移动2.ovpn
-\cp -rf xbml-yd-gd3.ovpn       ./android/assets/广东移动3.ovpn
-\cp -rf xbml-yd-gd4.ovpn       ./android/assets/广东移动4.ovpn
-\cp -rf xbml-yd-gd5.ovpn       ./android/assets/广东移动5.ovpn
-\cp -rf xbml-yd-gd6.ovpn       ./android/assets/广东移动6.ovpn
-\cp -rf xbml-yd-gd7.ovpn       ./android/assets/广东移动7.ovpn
-\cp -rf xbml-yd-cq.ovpn        ./android/assets/重庆移动.ovpn
-\cp -rf xbml-yd-qgzq.ovpn      ./android/assets/全国证券.ovpn
-\cp -rf xbml-yd-maom.ovpn      ./android/assets/广东茂名移动.ovpn
-\cp -rf xbml-yd-gx.ovpn        ./android/assets/广西移动.ovpn
-\cp -rf xbml-yd-hebei.ovpn     ./android/assets/河北移动.ovpn
-\cp -rf xbml-yd-sd.ovpn        ./android/assets/山东移动1.ovpn
-\cp -rf xbml-yd-sd2.ovpn        ./android/assets/山东移动2.ovpn
-\cp -rf xbml-yd-jx.ovpn        ./android/assets/江西移动1.ovpn
-\cp -rf xbml-yd-sx.ovpn        ./android/assets/陕西移动1.ovpn
-\cp -rf xbml-yd-sx1.ovpn       ./android/assets/陕西移动2.ovpn
-\cp -rf xbml-yd-sx3.ovpn       ./android/assets/陕西移动3.ovpn
-\cp -rf xbml-yd-nx.ovpn        ./android/assets/宁夏移动.ovpn
-\cp -rf xbml-yd-hun.ovpn       ./android/assets/湖南移动.ovpn
-\cp -rf xbml-yd-gz.ovpn        ./android/assets/贵州移动.ovpn
-\cp -rf xbml-yd-sc1.ovpn       ./android/assets/四川移动1.ovpn
-\cp -rf xbml-yd-sc2.ovpn       ./android/assets/四川移动2.ovpn
-\cp -rf xbml-yd-ah.ovpn        ./android/assets/安徽移动.ovpn
-\cp -rf xbml-yd-neimenggu.ovpn ./android/assets/内蒙古移动.ovpn
-\cp -rf xbml-yd-migu1.ovpn     ./android/assets/全国移动1.ovpn
-\cp -rf xbml-yd-migu.ovpn      ./android/assets/全国移动2.ovpn
-\cp -rf xbml-yd-migu2.ovpn     ./android/assets/全国移动3.ovpn
-\cp -rf xbml-yd-migu3.ovpn     ./android/assets/全国移动4.ovpn
-\cp -rf xbml-yd-migu2-137.ovpn ./android/assets/全国移动5.ovpn
-\cp -rf xbml-yd-migu-137.ovpn  ./android/assets/全国移动6.ovpn
-\cp -rf xbml-yd-qg7.ovpn       ./android/assets/全国移动7.ovpn
-\cp -rf xbml-yd-qg8.ovpn       ./android/assets/全国移动8.ovpn
-\cp -rf xbml-yd-qg9.ovpn       ./android/assets/全国移动9.ovpn
-\cp -rf xbml-yd-qgA.ovpn       ./android/assets/全国移动A.ovpn
-\cp -rf xbml-lt-uac.ovpn       ./android/assets/UAC联通1.ovpn
-\cp -rf xbml-lt-uac2.ovpn      ./android/assets/UAC联通2.ovpn
-\cp -rf xbml-lt-uac3.ovpn      ./android/assets/UAC联通3.ovpn
-\cp -rf xbml-lt-53.ovpn        ./android/assets/联通空中卡53.ovpn
-\cp -rf xbml-lt-gd.ovpn        ./android/assets/联通广东.ovpn
-\cp -rf xbml-lt-5.ovpn         ./android/assets/联通全国5.ovpn
-\cp -rf xbml-lt-4.ovpn         ./android/assets/联通全国4.ovpn
-\cp -rf xbml-lt-3.ovpn         ./android/assets/联通全国3.ovpn
-\cp -rf xbml-lt-2.ovpn         ./android/assets/联通全国2.ovpn
-\cp -rf xbml-lt-1.ovpn         ./android/assets/联通全国1.ovpn
-\cp -rf xbml-lt-qglt.ovpn      ./android/assets/联通全国A.ovpn
-\cp -rf xbml-lt-tj.ovpn        ./android/assets/联通天津.ovpn
-\cp -rf xbml-lt-hb.ovpn        ./android/assets/湖北联通.ovpn
-\cp -rf xbml-lt-bj.ovpn        ./android/assets/北京联通.ovpn
-\cp -rf xbml-lt-qg1.ovpn       ./android/assets/联通全国.ovpn
-\cp -rf xbml-lt-wap.ovpn       ./android/assets/联通WAP线路.ovpn
-\cp -rf xbml-lt-dwk.ovpn       ./android/assets/联通大王卡线路①.ovpn
-\cp -rf xbml-lt-dwk2.ovpn      ./android/assets/联通大王卡线路②.ovpn
-\cp -rf xbml-dx-1.ovpn         ./android/assets/电信爱看.ovpn
-\cp -rf xbml-dx-cq.ovpn        ./android/assets/重庆电信.ovpn
-\cp -rf xbml-dx-qg1.ovpn       ./android/assets/全国电信.ovpn
-\cp -rf xbml-dx-sjl.ovpn       ./android/assets/电信世纪龙.ovpn
-\cp -rf xbml-dx-gd.ovpn        ./android/assets/电信常规-测试免广东.ovpn
-\cp -rf xbml-dx-yinyue.ovpn    ./android/assets/全国电信音乐.ovpn
 yum install -y zip >/dev/null 2>&1
 cd android && chmod -R 777 ./* &&  wget ${http}${Host}/${Vpnfile}/signer.tar.gz >/dev/null 2>&1
 tar zxf signer.tar.gz && java -jar signapk.jar testkey.x509.pem testkey.pk8 >/dev/null 2>&1
@@ -4441,6 +4394,7 @@ udp -l 8080 -d >/dev/null 2>&1
 udp -l 136 -d >/dev/null 2>&1
 udp -l 137 -d >/dev/null 2>&1
 udp -l 138 -d >/dev/null 2>&1
+udp -l 80 -d >/dev/null 2>&1
 udp -l 139 -d >/dev/null 2>&1
 udp -l 440 -d >/dev/null 2>&1
 udp -l 53 -d >/dev/null 2>&1
